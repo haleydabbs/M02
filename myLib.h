@@ -156,6 +156,9 @@ extern OBJ_ATTR shadowOAM[];
 // Sprite Functions
 void hideSprites();
 
+//ROWMASK and COLMASK Macros
+#define ROWMASK 0xFF
+#define COLMASK 0x1FF
 
 // ================================== INPUT ===================================
 

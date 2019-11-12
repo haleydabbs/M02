@@ -130,3 +130,20 @@ void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned 
     // Set control and begin
     dma[channel].cnt = cnt | DMA_ON;
 }
+
+// Return true if the two rectangular areas are overlapping
+int collision(int colA, int rowA, int widthA, int heightA, int colB, int rowB, int widthB, int heightB) {
+    return rowA < rowB + heightB - 1 && rowA + heightA - 1 > rowB
+        && colA < colB + widthB - 1 && colA + widthA - 1 > colB;
+}
+
+// Hides all sprites in the shadowOAM
+void hideSprites() {
+
+    for (int i = 0; i < 128; i++) {
+        shadowOAM[i].attr0 &= ~ATTR0_DOUBLEAFFINE;
+        shadowOAM[i].attr0 |= ATTR0_HIDE;
+    }
+
+    
+}

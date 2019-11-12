@@ -1,10 +1,13 @@
 // Make files
 #include "myLib.h"
+#include "game.h"
 #include "startBG.h"
 #include "gameBG.h"
 #include "pauseBG.h"
 #include "loseBG.h"
 #include "winBG.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 // Function prototypes
 void initialize();
@@ -23,8 +26,10 @@ void win();
 // Variables
 unsigned short buttons;
 unsigned short oldButtons;
-int seed;
+
 OBJ_ATTR shadowOAM[128];
+
+// Game states
 enum { START, GAME, PAUSE, WIN, LOSE};
 int state;
 
@@ -94,7 +99,7 @@ void initialize() {
     REG_DISPCTL = MODE0 | SPRITE_ENABLE;
 
     // Loading BG palette
-    DMANow(3, winBGPal, PALETTE, 256);
+    DMANow(3, startBGPal, PALETTE, 256);
 
     goToStart();
 
@@ -112,19 +117,14 @@ void goToStart() {
 // Runs every frame of start state
 void start() {
 
-    seed++; 
-
     // Start button pressed, start the game
     if (BUTTON_PRESSED(BUTTON_START)) {
 
         // Clear the BG0 bit to turn off start BG
         REG_DISPCTL &= ~(BG0_ENABLE);
 
-        // Seed random - Keeping because will probably use later
-        // srand(seed);
-
         // Initialize game, then move to game state
-        // initGame();
+        initGame();
         goToGame();
 
     }
@@ -144,7 +144,8 @@ void goToGame() {
 void game() {
 
     // Update sprite positions in game, draw sprites, wait for vblank, and copy shadow OAM into OAM
-    // updateGame();
+    updateGame();
+    drawGame();
     waitForVBlank();
     DMANow(3, shadowOAM, OAM, (((sizeof(shadowOAM))/4) | DMA_DESTINATION_INCREMENT | DMA_SOURCE_INCREMENT | DMA_32));
 
@@ -175,6 +176,7 @@ void game() {
 void goToPause() {
 
     // Set up BG2 for pause screen
+    // Switch to pause BG, and un-enable sprites
     REG_DISPCTL |= BG2_ENABLE;
     REG_DISPCTL &= ~(SPRITE_ENABLE);
 

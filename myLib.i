@@ -57,10 +57,10 @@ typedef struct {
 extern OBJ_ATTR shadowOAM[];
 # 157 "myLib.h"
 void hideSprites();
-# 178 "myLib.h"
+# 181 "myLib.h"
 extern unsigned short oldButtons;
 extern unsigned short buttons;
-# 189 "myLib.h"
+# 192 "myLib.h"
 typedef volatile struct {
     volatile const void *src;
     volatile void *dst;
@@ -69,7 +69,7 @@ typedef volatile struct {
 
 
 extern DMA *dma;
-# 229 "myLib.h"
+# 232 "myLib.h"
 void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned int cnt);
 
 
@@ -207,4 +207,21 @@ void DMANow(int channel, volatile const void *src, volatile void *dst, unsigned 
 
 
     dma[channel].cnt = cnt | (1 << 31);
+}
+
+
+int collision(int colA, int rowA, int widthA, int heightA, int colB, int rowB, int widthB, int heightB) {
+    return rowA < rowB + heightB - 1 && rowA + heightA - 1 > rowB
+        && colA < colB + widthB - 1 && colA + widthA - 1 > colB;
+}
+
+
+void hideSprites() {
+
+    for (int i = 0; i < 128; i++) {
+        shadowOAM[i].attr0 &= ~(3<<8);
+        shadowOAM[i].attr0 |= (2<<8);
+    }
+
+
 }
