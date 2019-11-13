@@ -8,6 +8,9 @@
 // Initialize the game
 void initGame() {
 
+    // Counter variables
+    gemsRemaining = GEMCOUNT;
+
     // Set up sprite palette
     DMANow(3, FinalGameSpritesTiles, &CHARBLOCK[4], FinalGameSpritesTilesLen/2);
     DMANow(3, FinalGameSpritesPal, SPRITEPALETTE, FinalGameSpritesPalLen/2);
@@ -25,9 +28,23 @@ void initGame() {
     deer.cvel = 2;
     deer.rvel = 0;
 
+    // Initialize countdown num
+    countDownNum.width = 8;
+    countDownNum.height = 8;
+    countDownNum.oamPos = 9;
+    countDownNum.spriteSheetCol = 16;
+    countDownNum.spriteSheetRow = 9;
+    countDownNum.row = 8;
+    countDownNum.col = 21;
+
     // Initialize gems
     for (int i = 0; i < GEMCOUNT; i++) {
         initGems(&gems[i], i);
+    }
+
+    // Initialize hearts
+    for (int i = 0; i < LIFECOUNT; i++) {
+        initHearts(&hearts[i], i);
     }
 
 }
@@ -37,10 +54,28 @@ void initGems(GEM* g, int i) {
 
     g -> height = 8;
     g -> width = 8;
-    g -> col = (i * 15) + 4;
-    g -> row = 120 + deer.height - g -> height;
     g -> active = 1;
     g -> oamPos = 1 + i;
+
+    if (i == 4) {
+        g -> col = 10;
+        g -> row = 8;
+    } else {
+        g -> col = (i * 15) + 4;
+        g -> row = 120 + deer.height - g -> height;
+    }
+
+}
+
+// Helper to init hearts
+void initHearts(HEART* h, int i) {
+
+    h -> height = 8;
+    h -> width = 8;
+    h -> col = 220 - (i * 10);
+    h -> row = 8;
+    h -> oamPos = 6 + i;
+    h -> active = 1;
 
 }
 
@@ -53,6 +88,11 @@ void updateGame() {
     // Update gems
     for (int i = 0; i < GEMCOUNT; i++) {
         updateGems(&gems[i]);
+    }
+
+    // Update hearts
+    for (int i = 0; i < LIFECOUNT; i++) {
+        updateHearts(&hearts[i]);
     }
 
 }
@@ -98,11 +138,43 @@ void updateGems(GEM* g) {
             
             // In case of collision, turn active to 0
             g -> active = 0;
+
+            // Hide the sprite
             shadowOAM[g -> oamPos].attr0 = ATTR0_HIDE;
+
+            // Decrement gems remaining
+            gemsRemaining--;
+
+            updateGemsRemaining();
 
         }
 
     }
+
+}
+
+// Helper to update hearts
+void updateHearts(HEART* h) {
+
+    if (h -> active) {
+
+        shadowOAM[h->oamPos].attr0 = (ROWMASK & h -> row);
+        shadowOAM[h->oamPos].attr1 = (COLMASK & h -> col) | ATTR1_TINY;
+        shadowOAM[h->oamPos].attr2 = ATTR2_TILEID(16, 4) | ATTR2_PALROW(1) | ATTR2_PRIORITY(0);
+
+    }
+
+}
+
+// Helper to update gems remaining number sprite
+void updateGemsRemaining() {
+
+    // Check to makesure you arent at 1
+    if (countDownNum.spriteSheetRow > 4) {
+
+    countDownNum.spriteSheetRow--;  
+
+    }  
 
 }
 
@@ -112,13 +184,25 @@ void drawGame() {
     // Call helper to draw deer
     drawDeer();
 
+    // Call helper to draw gems remaining number sprite
+    drawGemsRemaining();
+
 }
 
-// Helper to draw dere
+// Helper to draw deer
 void drawDeer() {
 
     shadowOAM[0].attr0 = (ROWMASK & deer.row);
     shadowOAM[0].attr1 = (COLMASK & deer.col) | ATTR1_MEDIUM;
     shadowOAM[0].attr2 = ATTR2_TILEID(0, 0) | ATTR2_PALROW(0) | ATTR2_PRIORITY(0);
     
+}
+
+// Helper to draw gems remaining number sprite
+void drawGemsRemaining() {
+
+    shadowOAM[countDownNum.oamPos].attr0 = (ROWMASK & countDownNum.row);
+    shadowOAM[countDownNum.oamPos].attr1 = (COLMASK & countDownNum.col) | ATTR1_TINY;
+    shadowOAM[countDownNum.oamPos].attr2 = ATTR2_TILEID(countDownNum.spriteSheetCol, countDownNum.spriteSheetRow) | ATTR2_PALROW(0) | ATTR2_PRIORITY(0);
+
 }

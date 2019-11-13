@@ -550,8 +550,10 @@ win:
 	.comm	shadowOAM,1024,4
 	.comm	oldButtons,2,2
 	.comm	buttons,2,2
-	.comm	gems,96,4
+	.comm	hearts,72,4
+	.comm	gems,120,4
 	.comm	livesRemaining,4,4
 	.comm	gemsRemaining,4,4
+	.comm	countDownNum,28,4
 	.comm	deer,36,4
 	.ident	"GCC: (devkitARM release 53) 9.1.0"

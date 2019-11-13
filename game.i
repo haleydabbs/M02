@@ -1599,14 +1599,38 @@ typedef struct {
 } WOLF;
 
 
+typedef struct {
+    int row;
+    int col;
+    int width;
+    int height;
+    int active;
+    int oamPos;
+} HEART;
+
+
+typedef struct {
+    int row;
+    int col;
+    int width;
+    int height;
+    int oamPos;
+    int spriteSheetCol;
+    int spriteSheetRow;
+} NUM;
+
+
+
 
 
 
 
 DEER deer;
+NUM countDownNum;
 int gemsRemaining;
 int livesRemaining;
-GEM gems[4];
+GEM gems[5];
+HEART hearts[3];
 
 
 enum {DCHILL, DUP, DDOWN, DLEFT, DRIGHT};
@@ -1614,17 +1638,24 @@ enum {DCHILL, DUP, DDOWN, DLEFT, DRIGHT};
 
 void initGame();
 void initGems(GEM*, int);
+void initHearts(HEART*, int);
 
 void updateGame();
 void updateDeer();
 void updateGems(GEM* g);
+void updateHearts(HEART* h);
+void updateGemsRemaining();
 
 void drawGame();
 void drawDeer();
+void drawGemsRemaining();
 # 7 "game.c" 2
 
 
 void initGame() {
+
+
+    gemsRemaining = 5;
 
 
     DMANow(3, FinalGameSpritesTiles, &((charblock *)0x6000000)[4], 32768/2);
@@ -1644,8 +1675,22 @@ void initGame() {
     deer.rvel = 0;
 
 
-    for (int i = 0; i < 4; i++) {
+    countDownNum.width = 8;
+    countDownNum.height = 8;
+    countDownNum.oamPos = 9;
+    countDownNum.spriteSheetCol = 16;
+    countDownNum.spriteSheetRow = 9;
+    countDownNum.row = 8;
+    countDownNum.col = 21;
+
+
+    for (int i = 0; i < 5; i++) {
         initGems(&gems[i], i);
+    }
+
+
+    for (int i = 0; i < 3; i++) {
+        initHearts(&hearts[i], i);
     }
 
 }
@@ -1655,10 +1700,28 @@ void initGems(GEM* g, int i) {
 
     g -> height = 8;
     g -> width = 8;
-    g -> col = (i * 15) + 4;
-    g -> row = 120 + deer.height - g -> height;
     g -> active = 1;
     g -> oamPos = 1 + i;
+
+    if (i == 4) {
+        g -> col = 10;
+        g -> row = 8;
+    } else {
+        g -> col = (i * 15) + 4;
+        g -> row = 120 + deer.height - g -> height;
+    }
+
+}
+
+
+void initHearts(HEART* h, int i) {
+
+    h -> height = 8;
+    h -> width = 8;
+    h -> col = 220 - (i * 10);
+    h -> row = 8;
+    h -> oamPos = 6 + i;
+    h -> active = 1;
 
 }
 
@@ -1669,8 +1732,13 @@ void updateGame() {
     updateDeer();
 
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         updateGems(&gems[i]);
+    }
+
+
+    for (int i = 0; i < 3; i++) {
+        updateHearts(&hearts[i]);
     }
 
 }
@@ -1716,9 +1784,41 @@ void updateGems(GEM* g) {
 
 
             g -> active = 0;
+
+
             shadowOAM[g -> oamPos].attr0 = (2<<8);
 
+
+            gemsRemaining--;
+
+            updateGemsRemaining();
+
         }
+
+    }
+
+}
+
+
+void updateHearts(HEART* h) {
+
+    if (h -> active) {
+
+        shadowOAM[h->oamPos].attr0 = (0xFF & h -> row);
+        shadowOAM[h->oamPos].attr1 = (0x1FF & h -> col) | (0<<14);
+        shadowOAM[h->oamPos].attr2 = ((4)*32+(16)) | ((1)<<12) | ((0)<<10);
+
+    }
+
+}
+
+
+void updateGemsRemaining() {
+
+
+    if (countDownNum.spriteSheetRow > 4) {
+
+    countDownNum.spriteSheetRow--;
 
     }
 
@@ -1730,6 +1830,9 @@ void drawGame() {
 
     drawDeer();
 
+
+    drawGemsRemaining();
+
 }
 
 
@@ -1738,5 +1841,14 @@ void drawDeer() {
     shadowOAM[0].attr0 = (0xFF & deer.row);
     shadowOAM[0].attr1 = (0x1FF & deer.col) | (2<<14);
     shadowOAM[0].attr2 = ((0)*32+(0)) | ((0)<<12) | ((0)<<10);
+
+}
+
+
+void drawGemsRemaining() {
+
+    shadowOAM[countDownNum.oamPos].attr0 = (0xFF & countDownNum.row);
+    shadowOAM[countDownNum.oamPos].attr1 = (0x1FF & countDownNum.col) | (0<<14);
+    shadowOAM[countDownNum.oamPos].attr2 = ((countDownNum.spriteSheetRow)*32+(countDownNum.spriteSheetCol)) | ((0)<<12) | ((0)<<10);
 
 }

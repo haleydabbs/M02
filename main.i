@@ -117,14 +117,38 @@ typedef struct {
 } WOLF;
 
 
+typedef struct {
+    int row;
+    int col;
+    int width;
+    int height;
+    int active;
+    int oamPos;
+} HEART;
+
+
+typedef struct {
+    int row;
+    int col;
+    int width;
+    int height;
+    int oamPos;
+    int spriteSheetCol;
+    int spriteSheetRow;
+} NUM;
+
+
+
 
 
 
 
 DEER deer;
+NUM countDownNum;
 int gemsRemaining;
 int livesRemaining;
-GEM gems[4];
+GEM gems[5];
+HEART hearts[3];
 
 
 enum {DCHILL, DUP, DDOWN, DLEFT, DRIGHT};
@@ -132,13 +156,17 @@ enum {DCHILL, DUP, DDOWN, DLEFT, DRIGHT};
 
 void initGame();
 void initGems(GEM*, int);
+void initHearts(HEART*, int);
 
 void updateGame();
 void updateDeer();
 void updateGems(GEM* g);
+void updateHearts(HEART* h);
+void updateGemsRemaining();
 
 void drawGame();
 void drawDeer();
+void drawGemsRemaining();
 # 4 "main.c" 2
 # 1 "startBG.h" 1
 # 22 "startBG.h"
