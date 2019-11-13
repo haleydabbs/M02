@@ -24,7 +24,7 @@ void initGame() {
     deer.col = SCREENWIDTH/2 - deer.width/2;
     deer.row = 120;
     deer.aniCounter = 0;
-    deer.aniState = DCHILL;
+    deer.aniState = DRIGHT;
     deer.cvel = 2;
     deer.rvel = 0;
 
@@ -103,12 +103,16 @@ void updateDeer() {
     // Movement controls
     if(BUTTON_HELD(BUTTON_LEFT)) {
 
+        deer.aniState = DLEFT;
+
         // Move deer left
         if (deer.col > 0) {
             deer.col -= deer.cvel;
         }  
 
     } if(BUTTON_HELD(BUTTON_RIGHT)) {
+
+        deer.aniState = DRIGHT;
 
         // Move deer right
         if (deer.col + deer.width < 240) {
@@ -194,7 +198,7 @@ void drawDeer() {
 
     shadowOAM[0].attr0 = (ROWMASK & deer.row);
     shadowOAM[0].attr1 = (COLMASK & deer.col) | ATTR1_MEDIUM;
-    shadowOAM[0].attr2 = ATTR2_TILEID(0, 0) | ATTR2_PALROW(0) | ATTR2_PRIORITY(0);
+    shadowOAM[0].attr2 = ATTR2_TILEID(deer.aniState * 4, 0) | ATTR2_PALROW(0) | ATTR2_PRIORITY(0);
     
 }
 

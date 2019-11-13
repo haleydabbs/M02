@@ -24,7 +24,7 @@ pauseBGPal:
 	.short	8194
 	.short	31495
 	.short	19951
-	.short	3901
+	.short	0
 	.short	0
 	.short	0
 	.short	0

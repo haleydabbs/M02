@@ -34,17 +34,17 @@ startBGPal:
 	.short	0
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
+	.short	31775
+	.short	6339
+	.short	10660
+	.short	7474
+	.short	10821
+	.short	8935
+	.short	8451
+	.short	8694
+	.short	7605
+	.short	7768
+	.short	7539
 	.short	0
 	.short	0
 	.short	0

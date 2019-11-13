@@ -9,6 +9,7 @@ typedef struct {
     int aniCounter;
     int aniState;
     int prevAniState;
+    int aniFrame;
     int rvel;
     int cvel;
 } DEER;
@@ -70,7 +71,7 @@ GEM gems[GEMCOUNT];
 HEART hearts[LIFECOUNT];
 
 // Player state enum
-enum {DCHILL, DUP, DDOWN, DLEFT, DRIGHT};
+enum {DRIGHT, DLEFT, DUP, DDOWN};
 
 // Functions
 void initGame();

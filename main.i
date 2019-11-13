@@ -90,6 +90,7 @@ typedef struct {
     int aniCounter;
     int aniState;
     int prevAniState;
+    int aniFrame;
     int rvel;
     int cvel;
 } DEER;
@@ -151,7 +152,7 @@ GEM gems[5];
 HEART hearts[3];
 
 
-enum {DCHILL, DUP, DDOWN, DLEFT, DRIGHT};
+enum {DRIGHT, DLEFT, DUP, DDOWN};
 
 
 void initGame();
@@ -180,7 +181,7 @@ extern const unsigned short startBGPal[256];
 # 5 "main.c" 2
 # 1 "gameBG.h" 1
 # 22 "gameBG.h"
-extern const unsigned short gameBGTiles[304];
+extern const unsigned short gameBGTiles[32];
 
 
 extern const unsigned short gameBGMap[1024];
@@ -1438,10 +1439,20 @@ _putchar_unlocked(int _c)
 # 797 "c:\\devkitpro\\devkitarm\\arm-none-eabi\\include\\stdio.h" 3
 
 # 11 "main.c" 2
+# 1 "platformsBG.h" 1
+# 22 "platformsBG.h"
+
+# 22 "platformsBG.h"
+extern const unsigned short platformsBGTiles[4192];
 
 
+extern const unsigned short platformsBGMap[2048];
 
-# 13 "main.c"
+
+extern const unsigned short platformsBGPal[256];
+# 12 "main.c" 2
+
+
 void initialize();
 
 void goToStart();
@@ -1511,21 +1522,17 @@ void initialize() {
 
 
     (*(volatile unsigned short*)0x4000008) = ((0)<<2) | ((6)<<8) | (0<<14);
-    DMANow(3, startBGTiles, &((charblock *)0x6000000)[0], 640 / 2);
-    DMANow(3, startBGMap, &((screenblock *)0x6000000)[6], 2048 / 2);
 
 
-    (*(volatile unsigned short*)0x400000A) = ((1)<<2) | ((14)<<8) | (0<<14);
-    DMANow(3, gameBGTiles, &((charblock *)0x6000000)[1], 608 / 2);
-    DMANow(3, gameBGMap, &((screenblock *)0x6000000)[14], 2048 / 2);
+    (*(volatile unsigned short*)0x400000A) = ((1)<<2) | ((14)<<8) | (2<<14);
+    DMANow(3, platformsBGTiles, &((charblock *)0x6000000)[1], 8384 / 2);
+    DMANow(3, platformsBGMap, &((screenblock *)0x6000000)[14], 4096 / 2);
 
 
-    (*(volatile unsigned short*)0x400000C) = ((2)<<2) | ((22)<<8) | (0<<14);
-    DMANow(3, pauseBGTiles, &((charblock *)0x6000000)[2], 768 / 2);
-    DMANow(3, pauseBGMap, &((screenblock *)0x6000000)[22], 2048 / 2);
 
-
-    (*(volatile unsigned short*)0x400000E) = ((3)<<2) | ((30)<<8) | (0<<14);
+    (*(volatile unsigned short*)0x400000C) = ((2)<<2) | ((20)<<8) | (0<<14);
+    DMANow(3, gameBGTiles, &((charblock *)0x6000000)[2], 64 / 2);
+    DMANow(3, gameBGMap, &((screenblock *)0x6000000)[20], 2048 / 2);
 
 
     (*(unsigned short *)0x4000000) = 0 | (1<<12);
@@ -1542,6 +1549,12 @@ void goToStart() {
 
 
     (*(unsigned short *)0x4000000) |= (1<<8);
+    (*(unsigned short *)0x4000000) &= ~((1<<12));
+
+
+    DMANow(3, startBGTiles, &((charblock *)0x6000000)[0], 640 / 2);
+    DMANow(3, startBGMap, &((screenblock *)0x6000000)[6], 2048 / 2);
+
     state = START;
 
 }
@@ -1567,7 +1580,7 @@ void start() {
 void goToGame() {
 
 
-    (*(unsigned short *)0x4000000) |= (1<<9) | (1<<12);
+    (*(unsigned short *)0x4000000) |= (1<<9) | (1<<10) | (1<<12);
     state = GAME;
 
 }
@@ -1609,8 +1622,12 @@ void goToPause() {
 
 
 
-    (*(unsigned short *)0x4000000) |= (1<<10);
+    (*(unsigned short *)0x4000000) |= (1<<8);
     (*(unsigned short *)0x4000000) &= ~((1<<12));
+
+
+    DMANow(3, pauseBGTiles, &((charblock *)0x6000000)[0], 768 / 2);
+    DMANow(3, pauseBGMap, &((screenblock *)0x6000000)[6], 2048 / 2);
 
     state = PAUSE;
 
@@ -1623,7 +1640,7 @@ void pause() {
     if ((!(~(oldButtons)&((1<<3))) && (~buttons & ((1<<3))))) {
 
 
-        (*(unsigned short *)0x4000000) &= ~((1<<10));
+        (*(unsigned short *)0x4000000) &= ~((1<<8));
         goToGame();
 
     }
@@ -1634,12 +1651,12 @@ void pause() {
 void goToWin() {
 
 
-    (*(unsigned short *)0x4000000) |= (1<<11);
+    (*(unsigned short *)0x4000000) |= (1<<8);
     (*(unsigned short *)0x4000000) &= ~((1<<12));
 
 
-    DMANow(3, winBGTiles, &((charblock *)0x6000000)[3], 576 / 2);
-    DMANow(3, winBGMap, &((screenblock *)0x6000000)[30], 2048 / 2);
+    DMANow(3, winBGTiles, &((charblock *)0x6000000)[0], 576 / 2);
+    DMANow(3, winBGMap, &((screenblock *)0x6000000)[6], 2048 / 2);
 
     state = WIN;
 
@@ -1652,7 +1669,7 @@ void win() {
     if ((!(~(oldButtons)&((1<<3))) && (~buttons & ((1<<3))))) {
 
 
-        (*(unsigned short *)0x4000000) &= ~((1<<11));
+
         goToStart();
 
     }
@@ -1663,12 +1680,12 @@ void win() {
 void goToLose() {
 
 
-    (*(unsigned short *)0x4000000) |= (1<<11);
+    (*(unsigned short *)0x4000000) |= (1<<8);
     (*(unsigned short *)0x4000000) &= ~((1<<12));
 
 
-    DMANow(3, loseBGTiles, &((charblock *)0x6000000)[3], 640 / 2);
-    DMANow(3, loseBGMap, &((screenblock *)0x6000000)[30], 2048 / 2);
+    DMANow(3, loseBGTiles, &((charblock *)0x6000000)[0], 640 / 2);
+    DMANow(3, loseBGMap, &((screenblock *)0x6000000)[6], 2048 / 2);
 
     state = LOSE;
 
@@ -1681,7 +1698,7 @@ void lose() {
     if ((!(~(oldButtons)&((1<<3))) && (~buttons & ((1<<3))))) {
 
 
-        (*(unsigned short *)0x4000000) &= ~((1<<11));
+
         goToStart();
 
     }

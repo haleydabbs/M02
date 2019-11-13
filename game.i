@@ -1572,6 +1572,7 @@ typedef struct {
     int aniCounter;
     int aniState;
     int prevAniState;
+    int aniFrame;
     int rvel;
     int cvel;
 } DEER;
@@ -1633,7 +1634,7 @@ GEM gems[5];
 HEART hearts[3];
 
 
-enum {DCHILL, DUP, DDOWN, DLEFT, DRIGHT};
+enum {DRIGHT, DLEFT, DUP, DDOWN};
 
 
 void initGame();
@@ -1670,7 +1671,7 @@ void initGame() {
     deer.col = 240/2 - deer.width/2;
     deer.row = 120;
     deer.aniCounter = 0;
-    deer.aniState = DCHILL;
+    deer.aniState = DRIGHT;
     deer.cvel = 2;
     deer.rvel = 0;
 
@@ -1749,12 +1750,16 @@ void updateDeer() {
 
     if((~((*(volatile unsigned short *)0x04000130)) & ((1<<5)))) {
 
+        deer.aniState = DLEFT;
+
 
         if (deer.col > 0) {
             deer.col -= deer.cvel;
         }
 
     } if((~((*(volatile unsigned short *)0x04000130)) & ((1<<4)))) {
+
+        deer.aniState = DRIGHT;
 
 
         if (deer.col + deer.width < 240) {
@@ -1840,7 +1845,7 @@ void drawDeer() {
 
     shadowOAM[0].attr0 = (0xFF & deer.row);
     shadowOAM[0].attr1 = (0x1FF & deer.col) | (2<<14);
-    shadowOAM[0].attr2 = ((0)*32+(0)) | ((0)<<12) | ((0)<<10);
+    shadowOAM[0].attr2 = ((0)*32+(deer.aniState * 4)) | ((0)<<12) | ((0)<<10);
 
 }
 

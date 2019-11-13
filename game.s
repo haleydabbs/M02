@@ -71,12 +71,12 @@ initGame:
 	ldr	r0, .L8+36
 	str	r4, [r0, #16]
 	str	r4, [r0, #20]
-	str	r4, [r0, #28]
+	str	r4, [r0, #32]
 	mov	r4, #144
 	stm	r0, {r8, r9}
 	str	r5, [r0, #8]
 	str	r5, [r0, #12]
-	str	r7, [r0, #32]
+	str	r7, [r0, #36]
 .L2:
 	rsb	r0, r1, r1, lsl #4
 	add	r1, r1, #1
@@ -206,32 +206,35 @@ updateDeer:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
-	ldr	r3, .L19
+	ldr	r3, .L23
 	ldrh	r3, [r3, #48]
 	tst	r3, #32
-	bne	.L17
-	ldr	r2, .L19+4
-	ldr	r3, [r2, #4]
-	cmp	r3, #0
-	ldrgt	r1, [r2, #32]
-	subgt	r3, r3, r1
-	strgt	r3, [r2, #4]
-.L17:
-	ldr	r3, .L19
+	bne	.L18
+	mov	r1, #1
+	ldr	r3, .L23+4
+	ldr	r2, [r3, #4]
+	cmp	r2, #0
+	str	r1, [r3, #20]
+	ldrgt	r1, [r3, #36]
+	subgt	r2, r2, r1
+	strgt	r2, [r3, #4]
+.L18:
+	ldr	r3, .L23
 	ldrh	r3, [r3, #48]
-	tst	r3, #16
+	ands	r3, r3, #16
 	bxne	lr
-	ldr	r3, .L19+4
-	ldmib	r3, {r1, r2}
-	add	r2, r1, r2
-	cmp	r2, #239
-	ldrle	r2, [r3, #32]
-	addle	r1, r2, r1
-	strle	r1, [r3, #4]
+	ldr	r2, .L23+4
+	ldmib	r2, {r0, r1}
+	add	r1, r0, r1
+	cmp	r1, #239
+	str	r3, [r2, #20]
+	ldrle	r3, [r2, #36]
+	addle	r0, r3, r0
+	strle	r0, [r2, #4]
 	bx	lr
-.L20:
+.L24:
 	.align	2
-.L19:
+.L23:
 	.word	67109120
 	.word	deer
 	.size	updateDeer, .-updateDeer
@@ -260,16 +263,16 @@ updateGems:
 	str	r3, [sp, #4]
 	str	r6, [sp, #12]
 	ldr	r6, [r4, #8]
-	ldr	r5, .L32
+	ldr	r5, .L36
 	str	r6, [sp, #8]
-	ldr	r0, .L32+4
+	ldr	r0, .L36+4
 	lsl	r1, r2, #23
 	lsr	r1, r1, #23
 	lsl	r2, ip, #3
 	and	r3, r3, #255
 	add	ip, r5, ip, lsl #3
 	strh	r3, [r5, r2]	@ movhi
-	ldr	r6, .L32+8
+	ldr	r6, .L36+8
 	ldr	r3, [r0, #8]
 	ldr	r2, [r0, #12]
 	strh	r1, [ip, #2]	@ movhi
@@ -279,12 +282,12 @@ updateGems:
 	mov	lr, pc
 	bx	r6
 	cmp	r0, #0
-	beq	.L21
+	beq	.L25
 	mov	ip, #0
 	mov	r0, #512
-	ldr	r2, .L32+12
+	ldr	r2, .L36+12
 	ldr	r3, [r2]
-	ldr	r1, .L32+16
+	ldr	r1, .L36+16
 	sub	r3, r3, #1
 	str	r3, [r2]
 	ldr	r2, [r1, #24]
@@ -295,14 +298,14 @@ updateGems:
 	str	ip, [r4, #20]
 	strh	r0, [r5, r3]	@ movhi
 	strgt	r2, [r1, #24]
-.L21:
+.L25:
 	add	sp, sp, #16
 	@ sp needed
 	pop	{r4, r5, r6, lr}
 	bx	lr
-.L33:
+.L37:
 	.align	2
-.L32:
+.L36:
 	.word	shadowOAM
 	.word	deer
 	.word	collision
@@ -321,25 +324,25 @@ updateGame:
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, r6, lr}
 	bl	updateDeer
-	ldr	r0, .L42
+	ldr	r0, .L46
 	bl	updateGems
-	ldr	r0, .L42+4
+	ldr	r0, .L46+4
 	bl	updateGems
-	ldr	r0, .L42+8
+	ldr	r0, .L46+8
 	bl	updateGems
-	ldr	r0, .L42+12
+	ldr	r0, .L46+12
 	bl	updateGems
-	ldr	r0, .L42+16
+	ldr	r0, .L46+16
 	bl	updateGems
-	ldr	r3, .L42+20
-	ldr	ip, .L42+24
-	ldr	r6, .L42+28
-	ldr	r5, .L42+32
+	ldr	r3, .L46+20
+	ldr	ip, .L46+24
+	ldr	r6, .L46+28
+	ldr	r5, .L46+32
 	add	r0, r3, #72
-.L36:
+.L40:
 	ldr	r2, [r3, #16]
 	cmp	r2, #0
-	beq	.L35
+	beq	.L39
 	ldr	r2, [r3, #20]
 	ldr	r1, [r3, #4]
 	ldrb	r4, [r3]	@ zero_extendqisi2
@@ -349,15 +352,15 @@ updateGame:
 	strh	r4, [ip, lr]	@ movhi
 	strh	r5, [r2, #4]	@ movhi
 	strh	r1, [r2, #2]	@ movhi
-.L35:
+.L39:
 	add	r3, r3, #24
 	cmp	r3, r0
-	bne	.L36
+	bne	.L40
 	pop	{r4, r5, r6, lr}
 	bx	lr
-.L43:
+.L47:
 	.align	2
-.L42:
+.L46:
 	.word	gems
 	.word	gems+24
 	.word	gems+48
@@ -383,11 +386,11 @@ updateHearts:
 	bxeq	lr
 	ldr	r2, [r0, #4]
 	ldr	r3, [r0, #20]
-	ldr	r1, .L53
+	ldr	r1, .L57
 	str	lr, [sp, #-4]!
 	lsl	r2, r2, #23
 	ldrb	lr, [r0]	@ zero_extendqisi2
-	ldr	r0, .L53+4
+	ldr	r0, .L57+4
 	lsl	ip, r3, #3
 	lsr	r2, r2, #23
 	add	r3, r1, r3, lsl #3
@@ -396,9 +399,9 @@ updateHearts:
 	strh	r0, [r3, #4]	@ movhi
 	ldr	lr, [sp], #4
 	bx	lr
-.L54:
+.L58:
 	.align	2
-.L53:
+.L57:
 	.word	shadowOAM
 	.word	4240
 	.size	updateHearts, .-updateHearts
@@ -413,15 +416,15 @@ updateGemsRemaining:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
-	ldr	r2, .L57
+	ldr	r2, .L61
 	ldr	r3, [r2, #24]
 	cmp	r3, #4
 	subgt	r3, r3, #1
 	strgt	r3, [r2, #24]
 	bx	lr
-.L58:
+.L62:
 	.align	2
-.L57:
+.L61:
 	.word	countDownNum
 	.size	updateGemsRemaining, .-updateGemsRemaining
 	.align	2
@@ -434,37 +437,38 @@ drawGame:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	ldr	ip, .L61
-	ldr	r2, .L61+4
-	ldr	r3, [ip, #4]
-	and	r3, r3, r2
+	ldr	r2, .L65
+	push	{r4, r5, r6, lr}
+	ldr	r3, [r2, #4]
+	ldr	r4, .L65+4
+	and	r3, r3, r4
 	mvn	r3, r3, lsl #17
 	mvn	r3, r3, lsr #17
-	push	{r4, r5, r6, lr}
-	mov	r5, #0
-	ldr	r0, .L61+8
-	ldrb	ip, [ip]	@ zero_extendqisi2
-	ldr	lr, [r0, #4]
-	ldr	r1, .L61+12
-	ldr	r6, [r0, #24]
-	and	lr, lr, r2
+	ldr	r0, .L65+8
+	ldr	r1, .L65+12
+	ldr	ip, [r0, #4]
+	ldr	lr, [r2, #20]
+	ldrb	r6, [r2]	@ zero_extendqisi2
+	and	ip, ip, r4
 	ldr	r2, [r0, #16]
-	strh	ip, [r1]	@ movhi
-	ldr	ip, [r0, #20]
-	ldrb	r4, [r0]	@ zero_extendqisi2
+	ldr	r4, [r0, #24]
 	strh	r3, [r1, #2]	@ movhi
-	add	r0, ip, r6, lsl #5
+	ldr	r3, [r0, #20]
+	ldrb	r5, [r0]	@ zero_extendqisi2
+	lsl	lr, lr, #2
+	add	r0, r3, r4, lsl #5
+	lsl	r4, r2, #3
 	add	r3, r1, r2, lsl #3
-	lsl	ip, r2, #3
-	strh	r5, [r1, #4]	@ movhi
-	strh	r4, [r1, ip]	@ movhi
-	strh	lr, [r3, #2]	@ movhi
+	strh	r6, [r1]	@ movhi
+	strh	lr, [r1, #4]	@ movhi
+	strh	r5, [r1, r4]	@ movhi
+	strh	ip, [r3, #2]	@ movhi
 	strh	r0, [r3, #4]	@ movhi
 	pop	{r4, r5, r6, lr}
 	bx	lr
-.L62:
+.L66:
 	.align	2
-.L61:
+.L65:
 	.word	deer
 	.word	511
 	.word	countDownNum
@@ -481,22 +485,23 @@ drawDeer:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	@ link register save eliminated.
-	ldr	r2, .L64
-	ldr	r3, [r2, #4]
+	ldr	r0, .L68
+	ldr	r3, [r0, #4]
 	lsl	r3, r3, #23
 	lsr	r3, r3, #23
 	mvn	r3, r3, lsl #17
-	mov	r1, #0
 	mvn	r3, r3, lsr #17
-	ldrb	r0, [r2]	@ zero_extendqisi2
-	ldr	r2, .L64+4
+	ldr	r1, [r0, #20]
+	ldr	r2, .L68+4
+	ldrb	r0, [r0]	@ zero_extendqisi2
+	lsl	r1, r1, #2
 	strh	r3, [r2, #2]	@ movhi
 	strh	r0, [r2]	@ movhi
 	strh	r1, [r2, #4]	@ movhi
 	bx	lr
-.L65:
+.L69:
 	.align	2
-.L64:
+.L68:
 	.word	deer
 	.word	shadowOAM
 	.size	drawDeer, .-drawDeer
@@ -510,13 +515,13 @@ drawGemsRemaining:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	ldr	r1, .L68
+	ldr	r1, .L72
 	push	{r4, lr}
 	ldr	r2, [r1, #4]
 	ldr	r3, [r1, #16]
 	ldr	r4, [r1, #24]
 	ldrb	lr, [r1]	@ zero_extendqisi2
-	ldr	r0, .L68+4
+	ldr	r0, .L72+4
 	ldr	r1, [r1, #20]
 	lsl	r2, r2, #23
 	lsl	ip, r3, #3
@@ -528,9 +533,9 @@ drawGemsRemaining:
 	strh	r1, [r3, #4]	@ movhi
 	pop	{r4, lr}
 	bx	lr
-.L69:
+.L73:
 	.align	2
-.L68:
+.L72:
 	.word	countDownNum
 	.word	shadowOAM
 	.size	drawGemsRemaining, .-drawGemsRemaining
@@ -539,5 +544,5 @@ drawGemsRemaining:
 	.comm	livesRemaining,4,4
 	.comm	gemsRemaining,4,4
 	.comm	countDownNum,28,4
-	.comm	deer,36,4
+	.comm	deer,40,4
 	.ident	"GCC: (devkitARM release 53) 9.1.0"

@@ -8,6 +8,7 @@
 #include "winBG.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "platformsBG.h"
 
 // Function prototypes
 void initialize();
@@ -77,23 +78,19 @@ void initialize() {
     // Setting up BG registers and
 
     // DMA-ing BG files
-    // BG0 - Start
+    // BG0 - Start / Win / Lose
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(6) | BG_SIZE_SMALL;
-    DMANow(3, startBGTiles, &CHARBLOCK[0], startBGTilesLen / 2);
-    DMANow(3, startBGMap, &SCREENBLOCK[6], startBGMapLen / 2);
 
-    // BG1 - Game
-    REG_BG1CNT = BG_CHARBLOCK(1) | BG_SCREENBLOCK(14) | BG_SIZE_SMALL;
-    DMANow(3, gameBGTiles, &CHARBLOCK[1], gameBGTilesLen / 2);
-    DMANow(3, gameBGMap, &SCREENBLOCK[14], gameBGMapLen / 2);
+    // BG1 - Game platforms
+    REG_BG1CNT = BG_CHARBLOCK(1) | BG_SCREENBLOCK(14) | BG_SIZE_TALL;
+    DMANow(3, platformsBGTiles, &CHARBLOCK[1], platformsBGTilesLen / 2);
+    DMANow(3, platformsBGMap, &SCREENBLOCK[14], platformsBGMapLen / 2);
 
-    // BG2 - Pause
-    REG_BG2CNT = BG_CHARBLOCK(2) | BG_SCREENBLOCK(22) | BG_SIZE_SMALL;
-    DMANow(3, pauseBGTiles, &CHARBLOCK[2], pauseBGTilesLen / 2);
-    DMANow(3, pauseBGMap, &SCREENBLOCK[22], pauseBGMapLen / 2);
 
-    // BG3 - Win & Lose
-    REG_BG3CNT = BG_CHARBLOCK(3) | BG_SCREENBLOCK(30) | BG_SIZE_SMALL;
+    // BG2 - Game farther BG
+    REG_BG2CNT = BG_CHARBLOCK(2) | BG_SCREENBLOCK(20) | BG_SIZE_SMALL;
+    DMANow(3, gameBGTiles, &CHARBLOCK[2], gameBGTilesLen / 2);
+    DMANow(3, gameBGMap, &SCREENBLOCK[20], gameBGMapLen / 2);
 
     // Display Control Register
     REG_DISPCTL = MODE0 | SPRITE_ENABLE;
@@ -110,6 +107,12 @@ void goToStart() {
 
     // Load start BG tiles
     REG_DISPCTL |= BG0_ENABLE;
+    REG_DISPCTL &= ~(SPRITE_ENABLE);
+
+    // Loading lose BG tiles
+    DMANow(3, startBGTiles, &CHARBLOCK[0], startBGTilesLen / 2);
+    DMANow(3, startBGMap, &SCREENBLOCK[6], startBGMapLen / 2);
+
     state = START;
 
 }
@@ -135,7 +138,7 @@ void start() {
 void goToGame() {
 
     // Loading start BG tiles in BG 1
-    REG_DISPCTL |= BG1_ENABLE | SPRITE_ENABLE;
+    REG_DISPCTL |= BG1_ENABLE | BG2_ENABLE | SPRITE_ENABLE;
     state = GAME;
 
 }
@@ -175,10 +178,14 @@ void game() {
 // Sets up pause state
 void goToPause() {
 
-    // Set up BG2 for pause screen
+    // Set up BG0 for pause screen
     // Switch to pause BG, and un-enable sprites
-    REG_DISPCTL |= BG2_ENABLE;
+    REG_DISPCTL |= BG0_ENABLE;
     REG_DISPCTL &= ~(SPRITE_ENABLE);
+
+    // Loading lose BG tiles
+    DMANow(3, pauseBGTiles, &CHARBLOCK[0], pauseBGTilesLen / 2);
+    DMANow(3, pauseBGMap, &SCREENBLOCK[6], pauseBGMapLen / 2);
 
     state = PAUSE;
 
@@ -190,8 +197,8 @@ void pause() {
     // Start button pressed, return to game
     if (BUTTON_PRESSED(BUTTON_START)) {
 
-        // Clear BG2 bit
-        REG_DISPCTL &= ~(BG2_ENABLE);
+        // Clear BG0 bit
+        REG_DISPCTL &= ~(BG0_ENABLE);
         goToGame();
 
     } 
@@ -202,12 +209,12 @@ void pause() {
 void goToWin() {
 
     // Enable BG3 for win screen
-    REG_DISPCTL |= BG3_ENABLE;
+    REG_DISPCTL |= BG0_ENABLE;
     REG_DISPCTL &= ~(SPRITE_ENABLE);
 
     // Loading win BG tiles
-    DMANow(3, winBGTiles, &CHARBLOCK[3], winBGTilesLen / 2);
-    DMANow(3, winBGMap, &SCREENBLOCK[30], winBGMapLen / 2);
+    DMANow(3, winBGTiles, &CHARBLOCK[0], winBGTilesLen / 2);
+    DMANow(3, winBGMap, &SCREENBLOCK[6], winBGMapLen / 2);
 
     state = WIN;
 
@@ -220,7 +227,7 @@ void win() {
     if (BUTTON_PRESSED(BUTTON_START)) {
 
         // Clear BG3 bit
-        REG_DISPCTL &= ~(BG3_ENABLE);
+        // REG_DISPCTL &= ~(BG3_ENABLE);
         goToStart();
 
     }
@@ -230,13 +237,13 @@ void win() {
 // Sets up lose state
 void goToLose() {
 
-    // Enable BG3 for lose screen
-    REG_DISPCTL |= BG3_ENABLE;
+    // Enable BG0 for lose screen
+    REG_DISPCTL |= BG0_ENABLE;
     REG_DISPCTL &= ~(SPRITE_ENABLE);
 
     // Loading lose BG tiles
-    DMANow(3, loseBGTiles, &CHARBLOCK[3], loseBGTilesLen / 2);
-    DMANow(3, loseBGMap, &SCREENBLOCK[30], loseBGMapLen / 2);
+    DMANow(3, loseBGTiles, &CHARBLOCK[0], loseBGTilesLen / 2);
+    DMANow(3, loseBGMap, &SCREENBLOCK[6], loseBGMapLen / 2);
 
     state = LOSE;
 
@@ -249,7 +256,7 @@ void lose() {
     if (BUTTON_PRESSED(BUTTON_START)) {
 
         // Clear BG3 bit
-        REG_DISPCTL &= ~(BG3_ENABLE);
+        // REG_DISPCTL &= ~(BG3_ENABLE);
         goToStart();
 
     }
