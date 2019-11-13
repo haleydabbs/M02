@@ -30,6 +30,10 @@ unsigned short oldButtons;
 
 OBJ_ATTR shadowOAM[128];
 
+// Offset
+unsigned short hOff;
+unsigned short vOff;
+
 // Game states
 enum { START, GAME, PAUSE, WIN, LOSE};
 int state;
@@ -78,14 +82,13 @@ void initialize() {
     // Setting up BG registers and
 
     // DMA-ing BG files
-    // BG0 - Start / Win / Lose
+    // BG0 - Start / Win / Lose State BGs
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(6) | BG_SIZE_SMALL;
 
     // BG1 - Game platforms
     REG_BG1CNT = BG_CHARBLOCK(1) | BG_SCREENBLOCK(14) | BG_SIZE_TALL;
     DMANow(3, platformsBGTiles, &CHARBLOCK[1], platformsBGTilesLen / 2);
     DMANow(3, platformsBGMap, &SCREENBLOCK[14], platformsBGMapLen / 2);
-
 
     // BG2 - Game farther BG
     REG_BG2CNT = BG_CHARBLOCK(2) | BG_SCREENBLOCK(20) | BG_SIZE_SMALL;
@@ -97,6 +100,9 @@ void initialize() {
 
     // Loading BG palette
     DMANow(3, startBGPal, PALETTE, 256);
+
+    // Initialize offsets
+    vOff = 4096 - SCREENHEIGHT;
 
     goToStart();
 
@@ -150,6 +156,7 @@ void game() {
     updateGame();
     drawGame();
     waitForVBlank();
+    REG_BG1VOFF = vOff;
     DMANow(3, shadowOAM, OAM, (((sizeof(shadowOAM))/4) | DMA_DESTINATION_INCREMENT | DMA_SOURCE_INCREMENT | DMA_32));
 
     // Start button pressed, start the game

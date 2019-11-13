@@ -5,11 +5,11 @@
 //
 //	platformsBG, 256x512@4, 
 //	+ palette 256 entries, not compressed
-//	+ 262 tiles (t|f|p reduced) not compressed
+//	+ 267 tiles (t|f|p reduced) not compressed
 //	+ regular map (in SBBs), not compressed, 32x64 
-//	Total size: 512 + 8384 + 4096 = 12992
+//	Total size: 512 + 8544 + 4096 = 13152
 //
-//	Time-stamp: 2019-11-12, 22:47:11
+//	Time-stamp: 2019-11-12, 23:14:43
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.3
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_PLATFORMSBG_H
 #define GRIT_PLATFORMSBG_H
 
-#define platformsBGTilesLen 8384
-extern const unsigned short platformsBGTiles[4192];
+#define platformsBGTilesLen 8544
+extern const unsigned short platformsBGTiles[4272];
 
 #define platformsBGMapLen 4096
 extern const unsigned short platformsBGMap[2048];

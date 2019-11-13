@@ -74,7 +74,7 @@ initialize:
 	strh	r2, [r5, #10]	@ movhi
 	ldr	r1, .L8+8
 	ldr	r2, .L8+12
-	add	r3, r3, #2656
+	add	r3, r3, #2736
 	mov	lr, pc
 	bx	r4
 	mov	r3, #2048
@@ -105,7 +105,10 @@ initialize:
 	ldr	r1, .L8+44
 	mov	lr, pc
 	bx	r4
+	mov	r2, #3936
+	ldr	r3, .L8+48
 	pop	{r4, r5, r6, lr}
+	strh	r2, [r3]	@ movhi
 	b	goToStart
 .L9:
 	.align	2
@@ -122,6 +125,7 @@ initialize:
 	.word	100704256
 	.word	gameBGMap
 	.word	startBGPal
+	.word	vOff
 	.size	initialize, .-initialize
 	.align	2
 	.syntax unified
@@ -384,7 +388,8 @@ game:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	push	{r4, lr}
+	push	{r4, r5, r6, lr}
+	mov	r4, #67108864
 	ldr	r3, .L64
 	mov	lr, pc
 	bx	r3
@@ -394,58 +399,60 @@ game:
 	ldr	r3, .L64+8
 	mov	lr, pc
 	bx	r3
-	ldr	r4, .L64+12
-	ldr	r3, .L64+16
-	mov	r2, #117440512
+	ldr	r3, .L64+12
+	ldrh	r2, [r3]
 	mov	r0, #3
+	ldr	r3, .L64+16
+	strh	r2, [r4, #22]	@ movhi
 	ldr	r1, .L64+20
+	mov	r2, #117440512
+	ldr	r5, .L64+24
 	mov	lr, pc
-	bx	r4
-	ldr	r3, .L64+24
+	bx	r5
+	ldr	r3, .L64+28
 	ldrh	r3, [r3]
 	tst	r3, #8
 	beq	.L48
-	ldr	r2, .L64+28
+	ldr	r2, .L64+32
 	ldrh	r2, [r2]
 	tst	r2, #8
 	beq	.L61
 .L48:
 	tst	r3, #1
 	beq	.L49
-	ldr	r2, .L64+28
+	ldr	r2, .L64+32
 	ldrh	r2, [r2]
 	tst	r2, #1
 	beq	.L62
 .L49:
 	tst	r3, #2
 	beq	.L47
-	ldr	r3, .L64+28
+	ldr	r3, .L64+32
 	ldrh	r3, [r3]
 	tst	r3, #2
 	beq	.L63
 .L47:
-	pop	{r4, lr}
+	pop	{r4, r5, r6, lr}
 	bx	lr
 .L61:
-	mov	r2, #67108864
-	ldrh	r3, [r2]
+	ldrh	r3, [r4]
 	bic	r3, r3, #512
-	strh	r3, [r2]	@ movhi
-	pop	{r4, lr}
+	strh	r3, [r4]	@ movhi
+	pop	{r4, r5, r6, lr}
 	b	goToPause
 .L62:
 	mov	r2, #67108864
 	ldrh	r3, [r2]
 	bic	r3, r3, #512
 	strh	r3, [r2]	@ movhi
-	pop	{r4, lr}
+	pop	{r4, r5, r6, lr}
 	b	goToWin
 .L63:
 	mov	r2, #67108864
 	ldrh	r3, [r2]
 	bic	r3, r3, #512
 	strh	r3, [r2]	@ movhi
-	pop	{r4, lr}
+	pop	{r4, r5, r6, lr}
 	b	goToLose
 .L65:
 	.align	2
@@ -453,9 +460,10 @@ game:
 	.word	updateGame
 	.word	drawGame
 	.word	waitForVBlank
-	.word	DMANow
+	.word	vOff
 	.word	67109120
 	.word	shadowOAM
+	.word	DMANow
 	.word	oldButtons
 	.word	buttons
 	.size	game, .-game
@@ -586,6 +594,8 @@ win:
 	b	lose
 	.size	win, .-win
 	.comm	state,4,4
+	.comm	vOff,2,2
+	.comm	hOff,2,2
 	.comm	shadowOAM,1024,4
 	.comm	oldButtons,2,2
 	.comm	buttons,2,2

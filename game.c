@@ -22,7 +22,7 @@ void initGame() {
     deer.width = 32;
     deer.height = 32;
     deer.col = SCREENWIDTH/2 - deer.width/2;
-    deer.row = 120;
+    deer.row = 118;
     deer.aniCounter = 0;
     deer.aniState = DRIGHT;
     deer.cvel = 2;
@@ -61,8 +61,8 @@ void initGems(GEM* g, int i) {
         g -> col = 10;
         g -> row = 8;
     } else {
-        g -> col = (i * 15) + 4;
-        g -> row = 120 + deer.height - g -> height;
+        g -> col = 220 - (i * 15);
+        g -> row = 160 - ( 20 );
     }
 
 }

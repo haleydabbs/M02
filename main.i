@@ -1443,7 +1443,7 @@ _putchar_unlocked(int _c)
 # 22 "platformsBG.h"
 
 # 22 "platformsBG.h"
-extern const unsigned short platformsBGTiles[4192];
+extern const unsigned short platformsBGTiles[4272];
 
 
 extern const unsigned short platformsBGMap[2048];
@@ -1471,6 +1471,10 @@ unsigned short buttons;
 unsigned short oldButtons;
 
 OBJ_ATTR shadowOAM[128];
+
+
+unsigned short hOff;
+unsigned short vOff;
 
 
 enum { START, GAME, PAUSE, WIN, LOSE};
@@ -1525,9 +1529,8 @@ void initialize() {
 
 
     (*(volatile unsigned short*)0x400000A) = ((1)<<2) | ((14)<<8) | (2<<14);
-    DMANow(3, platformsBGTiles, &((charblock *)0x6000000)[1], 8384 / 2);
+    DMANow(3, platformsBGTiles, &((charblock *)0x6000000)[1], 8544 / 2);
     DMANow(3, platformsBGMap, &((screenblock *)0x6000000)[14], 4096 / 2);
-
 
 
     (*(volatile unsigned short*)0x400000C) = ((2)<<2) | ((20)<<8) | (0<<14);
@@ -1539,6 +1542,9 @@ void initialize() {
 
 
     DMANow(3, startBGPal, ((unsigned short *)0x5000000), 256);
+
+
+    vOff = 4096 - 160;
 
     goToStart();
 
@@ -1592,6 +1598,7 @@ void game() {
     updateGame();
     drawGame();
     waitForVBlank();
+    (*(volatile unsigned short *)0x04000016) = vOff;
     DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), (((sizeof(shadowOAM))/4) | (0 << 21) | (0 << 23) | (1 << 26)));
 
 
