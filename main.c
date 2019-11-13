@@ -9,12 +9,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "platformsBG.h"
+#include "InstructionsBG.h"
 
 // Function prototypes
 void initialize();
 // State functions
 void goToStart();
 void start();
+void goToInstructions();
+void instructions();
 void goToGame();
 void game();
 void goToPause();
@@ -35,7 +38,7 @@ unsigned short hOff;
 unsigned short vOff;
 
 // Game states
-enum { START, GAME, PAUSE, WIN, LOSE};
+enum { START, INSTRUCTIONS, GAME, PAUSE, WIN, LOSE};
 int state;
 
 int main() {
@@ -54,6 +57,9 @@ int main() {
 
             case START:
                 start();
+                break;
+            case INSTRUCTIONS:
+                instructions();
                 break;
             case GAME:
                 game();
@@ -82,7 +88,7 @@ void initialize() {
     // Setting up BG registers and
 
     // DMA-ing BG files
-    // BG0 - Start / Win / Lose State BGs
+    // BG0 - Start / Instructions / Win / Lose State BGs
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(6) | BG_SIZE_SMALL;
 
     // BG1 - Game platforms
@@ -115,7 +121,6 @@ void goToStart() {
     REG_DISPCTL |= BG0_ENABLE;
     REG_DISPCTL &= ~(SPRITE_ENABLE);
 
-    // Loading lose BG tiles
     DMANow(3, startBGTiles, &CHARBLOCK[0], startBGTilesLen / 2);
     DMANow(3, startBGMap, &SCREENBLOCK[6], startBGMapLen / 2);
 
@@ -130,6 +135,45 @@ void start() {
     if (BUTTON_PRESSED(BUTTON_START)) {
 
         // Clear the BG0 bit to turn off start BG
+        REG_DISPCTL &= ~(BG0_ENABLE);
+
+        // Initialize game, then move to game state
+        initGame();
+        goToGame();
+
+    }
+    // If select pressed, go to instructions
+    if (BUTTON_PRESSED(BUTTON_SELECT)) {
+
+        // Move to Instructions
+        goToInstructions();
+
+    }
+
+}
+
+// Sets up instructions
+void goToInstructions() {
+
+    // Loading instructions BG tiles
+    DMANow(3, InstructionsBGTiles, &CHARBLOCK[0], InstructionsBGTilesLen / 2);
+    DMANow(3, InstructionsBGMap, &SCREENBLOCK[6], InstructionsBGMapLen / 2);
+
+    state = INSTRUCTIONS;
+
+}
+
+// Runs every frame of instructions
+void instructions() {
+
+    if (BUTTON_PRESSED(BUTTON_SELECT)) {
+
+        goToStart();
+
+    }
+    if (BUTTON_PRESSED(BUTTON_START)) {
+
+        // Clear the BG0 bit to turn off instructions BG
         REG_DISPCTL &= ~(BG0_ENABLE);
 
         // Initialize game, then move to game state
