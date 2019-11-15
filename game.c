@@ -4,6 +4,7 @@
 #include "myLib.h"
 #include "FinalGameSprites.h"
 #include "game.h"
+#include "collisionMap.h"
 
 // Initialize the game
 void initGame() {
@@ -21,8 +22,10 @@ void initGame() {
     // Initialize deer sprite
     deer.width = 32;
     deer.height = 32;
-    deer.col = SCREENWIDTH/2 - deer.width/2;
-    deer.row = 118;
+    // deer.screenCol = SCREENWIDTH/2 - deer.width/2;
+    // deer.screenRow = 118;
+    deer.worldRow = MAPHEIGHT - SCREENWIDTH - deer.height - 26;
+    deer.worldCol = (SCREENWIDTH/2) - (deer.width/2) + hOff;
     deer.aniCounter = 0;
     deer.aniState = DRIGHT;
     deer.cvel = 2;
@@ -46,6 +49,10 @@ void initGame() {
     for (int i = 0; i < LIFECOUNT; i++) {
         initHearts(&hearts[i], i);
     }
+
+    // Initialize screen offsets
+    vOff = MAPHEIGHT - SCREENHEIGHT;
+    hOff = 0;
 
 }
 
@@ -105,18 +112,36 @@ void updateDeer() {
 
         deer.aniState = DLEFT;
 
-        // Move deer left
-        if (deer.col > 0) {
-            deer.col -= deer.cvel;
-        }  
+        // // Move deer left
+        // if (deer.screenCol > 0) {
+        //     deer.screenCol -= deer.cvel;
+        // }  
+
+        if ((deer.worldCol > 0)) {
+
+            deer.worldCol --;
+
+            if ((hOff > 0) && (deer.screenCol < 120 /*120 = Screenwidth/2*/)) {
+                hOff--;
+            }
+        }
 
     } if(BUTTON_HELD(BUTTON_RIGHT)) {
 
         deer.aniState = DRIGHT;
 
         // Move deer right
-        if (deer.col + deer.width < 240) {
-            deer.col += deer.cvel;
+        // if (deer.screenCol + deer.width < 240) {
+        //     deer.screenCol += deer.cvel;
+        // }
+
+        if (deer.worldCol < SCREENWIDTH) {
+
+            deer.worldCol ++;
+
+            if ((hOff < (MAPWIDTH - SCREENWIDTH)) && (deer.screenCol > 120 /*120 = Screenwidth/2*/)) {
+                hOff++;
+            }
         }
 
     } if(BUTTON_PRESSED(BUTTON_UP)) {
@@ -124,6 +149,9 @@ void updateDeer() {
         // Add Jump logic here
 
     }
+
+    deer.screenRow = deer.worldRow - vOff;
+    deer.screenCol = deer.worldCol - hOff;
 
 }
 
@@ -137,7 +165,7 @@ void updateGems(GEM* g) {
         shadowOAM[g->oamPos].attr2 = ATTR2_TILEID(16, 0) | ATTR2_PALROW(0) | ATTR2_PRIORITY(0);
     
         // Check for collision with player
-        if (collision(deer.col, deer.row, deer.height, deer.width,
+        if (collision(deer.screenCol, deer.screenRow, deer.height, deer.width,
         g -> col, g -> row, g -> width, g -> height)) {
             
             // In case of collision, turn active to 0
@@ -191,13 +219,19 @@ void drawGame() {
     // Call helper to draw gems remaining number sprite
     drawGemsRemaining();
 
+    waitForVBlank();
+    DMANow(3, shadowOAM, OAM, 128*4);
+
+    REG_BG1HOFF = hOff;
+    REG_BG1VOFF = vOff;
+
 }
 
 // Helper to draw deer
 void drawDeer() {
 
-    shadowOAM[0].attr0 = (ROWMASK & deer.row);
-    shadowOAM[0].attr1 = (COLMASK & deer.col) | ATTR1_MEDIUM;
+    shadowOAM[0].attr0 = (ROWMASK & deer.screenRow) | ATTR0_SQUARE;
+    shadowOAM[0].attr1 = (COLMASK & deer.screenCol) | ATTR1_MEDIUM;
     shadowOAM[0].attr2 = ATTR2_TILEID(deer.aniState * 4, 0) | ATTR2_PALROW(0) | ATTR2_PRIORITY(0);
     
 }

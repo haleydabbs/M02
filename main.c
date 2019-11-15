@@ -33,10 +33,6 @@ unsigned short oldButtons;
 
 OBJ_ATTR shadowOAM[128];
 
-// Offset
-unsigned short hOff;
-unsigned short vOff;
-
 // Game states
 enum { START, INSTRUCTIONS, GAME, PAUSE, WIN, LOSE};
 int state;
@@ -106,9 +102,6 @@ void initialize() {
 
     // Loading BG palette
     DMANow(3, startBGPal, PALETTE, 256);
-
-    // Initialize offsets
-    vOff = 4096 - SCREENHEIGHT;
 
     goToStart();
 
@@ -199,9 +192,6 @@ void game() {
     // Update sprite positions in game, draw sprites, wait for vblank, and copy shadow OAM into OAM
     updateGame();
     drawGame();
-    waitForVBlank();
-    REG_BG1VOFF = vOff;
-    DMANow(3, shadowOAM, OAM, (((sizeof(shadowOAM))/4) | DMA_DESTINATION_INCREMENT | DMA_SOURCE_INCREMENT | DMA_32));
 
     // Start button pressed, start the game
     if (BUTTON_PRESSED(BUTTON_START)) {

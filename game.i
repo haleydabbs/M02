@@ -1565,8 +1565,10 @@ extern const unsigned short FinalGameSpritesPal[256];
 
 
 typedef struct {
-    int row;
-    int col;
+    int worldRow;
+    int worldCol;
+    int screenRow;
+    int screenCol;
     int width;
     int height;
     int aniCounter;
@@ -1619,19 +1621,17 @@ typedef struct {
     int spriteSheetCol;
     int spriteSheetRow;
 } NUM;
-
-
-
-
-
-
-
+# 70 "game.h"
 DEER deer;
 NUM countDownNum;
 int gemsRemaining;
 int livesRemaining;
 GEM gems[5];
 HEART hearts[3];
+
+
+int hOff;
+int vOff;
 
 
 enum {DRIGHT, DLEFT, DUP, DDOWN};
@@ -1668,8 +1668,10 @@ void initGame() {
 
     deer.width = 32;
     deer.height = 32;
-    deer.col = 240/2 - deer.width/2;
-    deer.row = 118;
+
+
+    deer.worldRow = 512 - 240 - deer.height - 26;
+    deer.worldCol = (240/2) - (deer.width/2) + hOff;
     deer.aniCounter = 0;
     deer.aniState = DRIGHT;
     deer.cvel = 2;
@@ -1693,6 +1695,10 @@ void initGame() {
     for (int i = 0; i < 3; i++) {
         initHearts(&hearts[i], i);
     }
+
+
+    vOff = 512 - 160;
+    hOff = 0;
 
 }
 
@@ -1753,8 +1759,17 @@ void updateDeer() {
         deer.aniState = DLEFT;
 
 
-        if (deer.col > 0) {
-            deer.col -= deer.cvel;
+
+
+
+
+        if ((deer.worldCol > 0)) {
+
+            deer.worldCol --;
+
+            if ((hOff > 0) && (deer.screenCol < 120 )) {
+                hOff--;
+            }
         }
 
     } if((~((*(volatile unsigned short *)0x04000130)) & ((1<<4)))) {
@@ -1762,8 +1777,17 @@ void updateDeer() {
         deer.aniState = DRIGHT;
 
 
-        if (deer.col + deer.width < 240) {
-            deer.col += deer.cvel;
+
+
+
+
+        if (deer.worldCol < 240) {
+
+            deer.worldCol ++;
+
+            if ((hOff < (256 - 240)) && (deer.screenCol > 120 )) {
+                hOff++;
+            }
         }
 
     } if((!(~(oldButtons)&((1<<6))) && (~buttons & ((1<<6))))) {
@@ -1771,6 +1795,9 @@ void updateDeer() {
 
 
     }
+
+    deer.screenRow = deer.worldRow - vOff;
+    deer.screenCol = deer.worldCol - hOff;
 
 }
 
@@ -1784,7 +1811,7 @@ void updateGems(GEM* g) {
         shadowOAM[g->oamPos].attr2 = ((0)*32+(16)) | ((0)<<12) | ((0)<<10);
 
 
-        if (collision(deer.col, deer.row, deer.height, deer.width,
+        if (collision(deer.screenCol, deer.screenRow, deer.height, deer.width,
         g -> col, g -> row, g -> width, g -> height)) {
 
 
@@ -1838,13 +1865,19 @@ void drawGame() {
 
     drawGemsRemaining();
 
+    waitForVBlank();
+    DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128*4);
+
+    (*(volatile unsigned short *)0x04000014) = hOff;
+    (*(volatile unsigned short *)0x04000016) = vOff;
+
 }
 
 
 void drawDeer() {
 
-    shadowOAM[0].attr0 = (0xFF & deer.row);
-    shadowOAM[0].attr1 = (0x1FF & deer.col) | (2<<14);
+    shadowOAM[0].attr0 = (0xFF & deer.screenRow) | (0<<14);
+    shadowOAM[0].attr1 = (0x1FF & deer.screenCol) | (2<<14);
     shadowOAM[0].attr2 = ((0)*32+(deer.aniState * 4)) | ((0)<<12) | ((0)<<10);
 
 }

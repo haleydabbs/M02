@@ -2,8 +2,10 @@
 
 // Player
 typedef struct {
-    int row;
-    int col;
+    int worldRow;
+    int worldCol;
+    int screenRow;
+    int screenCol;
     int width;
     int height;
     int aniCounter;
@@ -62,6 +64,8 @@ typedef struct {
 // Constants
 # define GEMCOUNT 5
 # define LIFECOUNT 3
+# define MAPWIDTH 256
+# define MAPHEIGHT 512
 
 DEER deer;
 NUM countDownNum;
@@ -69,6 +73,10 @@ int gemsRemaining;
 int livesRemaining;
 GEM gems[GEMCOUNT];
 HEART hearts[LIFECOUNT];
+
+// Offset
+int hOff;
+int vOff;
 
 // Player state enum
 enum {DRIGHT, DLEFT, DUP, DDOWN};

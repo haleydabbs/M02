@@ -83,8 +83,10 @@ int collision(int colA, int rowA, int widthA, int heightA, int colB, int rowB, i
 
 
 typedef struct {
-    int row;
-    int col;
+    int worldRow;
+    int worldCol;
+    int screenRow;
+    int screenCol;
     int width;
     int height;
     int aniCounter;
@@ -137,19 +139,17 @@ typedef struct {
     int spriteSheetCol;
     int spriteSheetRow;
 } NUM;
-
-
-
-
-
-
-
+# 70 "game.h"
 DEER deer;
 NUM countDownNum;
 int gemsRemaining;
 int livesRemaining;
 GEM gems[5];
 HEART hearts[3];
+
+
+int hOff;
+int vOff;
 
 
 enum {DRIGHT, DLEFT, DUP, DDOWN};
@@ -1485,10 +1485,6 @@ unsigned short oldButtons;
 OBJ_ATTR shadowOAM[128];
 
 
-unsigned short hOff;
-unsigned short vOff;
-
-
 enum { START, INSTRUCTIONS, GAME, PAUSE, WIN, LOSE};
 int state;
 
@@ -1557,9 +1553,6 @@ void initialize() {
 
 
     DMANow(3, startBGPal, ((unsigned short *)0x5000000), 256);
-
-
-    vOff = 4096 - 160;
 
     goToStart();
 
@@ -1650,9 +1643,6 @@ void game() {
 
     updateGame();
     drawGame();
-    waitForVBlank();
-    (*(volatile unsigned short *)0x04000016) = vOff;
-    DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), (((sizeof(shadowOAM))/4) | (0 << 21) | (0 << 23) | (1 << 26)));
 
 
     if ((!(~(oldButtons)&((1<<3))) && (~buttons & ((1<<3))))) {

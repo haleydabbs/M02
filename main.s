@@ -105,10 +105,7 @@ initialize:
 	ldr	r1, .L8+44
 	mov	lr, pc
 	bx	r4
-	mov	r2, #3936
-	ldr	r3, .L8+48
 	pop	{r4, r5, r6, lr}
-	strh	r2, [r3]	@ movhi
 	b	goToStart
 .L9:
 	.align	2
@@ -125,7 +122,6 @@ initialize:
 	.word	100704256
 	.word	gameBGMap
 	.word	startBGPal
-	.word	vOff
 	.size	initialize, .-initialize
 	.align	2
 	.syntax unified
@@ -497,8 +493,7 @@ game:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	push	{r4, r5, r6, lr}
-	mov	r4, #67108864
+	push	{r4, lr}
 	ldr	r3, .L85
 	mov	lr, pc
 	bx	r3
@@ -506,73 +501,56 @@ game:
 	mov	lr, pc
 	bx	r3
 	ldr	r3, .L85+8
-	mov	lr, pc
-	bx	r3
-	ldr	r3, .L85+12
-	ldrh	r2, [r3]
-	mov	r0, #3
-	ldr	r3, .L85+16
-	strh	r2, [r4, #22]	@ movhi
-	ldr	r1, .L85+20
-	mov	r2, #117440512
-	ldr	r5, .L85+24
-	mov	lr, pc
-	bx	r5
-	ldr	r3, .L85+28
 	ldrh	r3, [r3]
 	tst	r3, #8
 	beq	.L69
-	ldr	r2, .L85+32
+	ldr	r2, .L85+12
 	ldrh	r2, [r2]
 	tst	r2, #8
 	beq	.L82
 .L69:
 	tst	r3, #1
 	beq	.L70
-	ldr	r2, .L85+32
+	ldr	r2, .L85+12
 	ldrh	r2, [r2]
 	tst	r2, #1
 	beq	.L83
 .L70:
 	tst	r3, #2
 	beq	.L68
-	ldr	r3, .L85+32
+	ldr	r3, .L85+12
 	ldrh	r3, [r3]
 	tst	r3, #2
 	beq	.L84
 .L68:
-	pop	{r4, r5, r6, lr}
+	pop	{r4, lr}
 	bx	lr
 .L82:
-	ldrh	r3, [r4]
+	mov	r2, #67108864
+	ldrh	r3, [r2]
 	bic	r3, r3, #512
-	strh	r3, [r4]	@ movhi
-	pop	{r4, r5, r6, lr}
+	strh	r3, [r2]	@ movhi
+	pop	{r4, lr}
 	b	goToPause
 .L83:
 	mov	r2, #67108864
 	ldrh	r3, [r2]
 	bic	r3, r3, #512
 	strh	r3, [r2]	@ movhi
-	pop	{r4, r5, r6, lr}
+	pop	{r4, lr}
 	b	goToWin
 .L84:
 	mov	r2, #67108864
 	ldrh	r3, [r2]
 	bic	r3, r3, #512
 	strh	r3, [r2]	@ movhi
-	pop	{r4, r5, r6, lr}
+	pop	{r4, lr}
 	b	goToLose
 .L86:
 	.align	2
 .L85:
 	.word	updateGame
 	.word	drawGame
-	.word	waitForVBlank
-	.word	vOff
-	.word	67109120
-	.word	shadowOAM
-	.word	DMANow
 	.word	oldButtons
 	.word	buttons
 	.size	game, .-game
@@ -712,15 +690,15 @@ win:
 	b	lose
 	.size	win, .-win
 	.comm	state,4,4
-	.comm	vOff,2,2
-	.comm	hOff,2,2
 	.comm	shadowOAM,1024,4
 	.comm	oldButtons,2,2
 	.comm	buttons,2,2
+	.comm	vOff,4,4
+	.comm	hOff,4,4
 	.comm	hearts,72,4
 	.comm	gems,120,4
 	.comm	livesRemaining,4,4
 	.comm	gemsRemaining,4,4
 	.comm	countDownNum,28,4
-	.comm	deer,40,4
+	.comm	deer,48,4
 	.ident	"GCC: (devkitARM release 53) 9.1.0"
