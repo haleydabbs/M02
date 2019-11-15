@@ -24,11 +24,11 @@ void initGame() {
     deer.height = 32;
     // deer.screenCol = SCREENWIDTH/2 - deer.width/2;
     // deer.screenRow = 118;
-    deer.worldRow = MAPHEIGHT - SCREENWIDTH - deer.height - 26;
+    deer.worldRow = MAPHEIGHT - SCREENWIDTH - deer.height - 35;
     deer.worldCol = (SCREENWIDTH/2) - (deer.width/2) + hOff;
     deer.aniCounter = 0;
     deer.aniState = DRIGHT;
-    deer.cvel = 2;
+    deer.cvel = 1;
     deer.rvel = 0;
 
     // Initialize countdown num
@@ -110,15 +110,14 @@ void updateDeer() {
     // Movement controls
     if(BUTTON_HELD(BUTTON_LEFT)) {
 
-        deer.aniState = DLEFT;
+        deer.aniState = DLEFT;  
 
-        // // Move deer left
-        // if (deer.screenCol > 0) {
-        //     deer.screenCol -= deer.cvel;
-        // }  
+        // Check that pikachu doesn't go off of map
+        if ((deer.worldCol > 0)
+        && (collisionMapBitmap[OFFSET(deer.worldCol - 1, deer.worldRow, MAPWIDTH)])
+        && (collisionMapBitmap[OFFSET(deer.worldCol - deer.cvel, deer.worldRow + deer.height - 1, MAPWIDTH)])) {
 
-        if ((deer.worldCol > 0)) {
-
+            // Update world position
             deer.worldCol --;
 
             if ((hOff > 0) && (deer.screenCol < 120 /*120 = Screenwidth/2*/)) {
@@ -130,13 +129,12 @@ void updateDeer() {
 
         deer.aniState = DRIGHT;
 
-        // Move deer right
-        // if (deer.screenCol + deer.width < 240) {
-        //     deer.screenCol += deer.cvel;
-        // }
+        // Check that pikachu doesn't go off the map
+        if ((deer.worldCol < SCREENWIDTH)
+        /*&& (collisionMapBitmap[OFFSET(deer.worldCol + deer.width, deer.worldRow, MAPWIDTH)])*/
+        /*&& (collisionMapBitmap[OFFSET(deer.worldCol + deer.width, deer.worldRow + deer.height - 1, MAPWIDTH)])*/) {
 
-        if (deer.worldCol < SCREENWIDTH) {
-
+            // Update world position
             deer.worldCol ++;
 
             if ((hOff < (MAPWIDTH - SCREENWIDTH)) && (deer.screenCol > 120 /*120 = Screenwidth/2*/)) {

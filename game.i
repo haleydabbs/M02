@@ -1651,6 +1651,10 @@ void drawGame();
 void drawDeer();
 void drawGemsRemaining();
 # 7 "game.c" 2
+# 1 "collisionMap.h" 1
+# 20 "collisionMap.h"
+extern const unsigned short collisionMapBitmap[131072];
+# 8 "game.c" 2
 
 
 void initGame() {
@@ -1670,11 +1674,11 @@ void initGame() {
     deer.height = 32;
 
 
-    deer.worldRow = 512 - 240 - deer.height - 26;
+    deer.worldRow = 512 - 240 - deer.height - 35;
     deer.worldCol = (240/2) - (deer.width/2) + hOff;
     deer.aniCounter = 0;
     deer.aniState = DRIGHT;
-    deer.cvel = 2;
+    deer.cvel = 1;
     deer.rvel = 0;
 
 
@@ -1759,11 +1763,10 @@ void updateDeer() {
         deer.aniState = DLEFT;
 
 
+        if ((deer.worldCol > 0)
+        && (collisionMapBitmap[((deer.worldRow)*(256)+(deer.worldCol - 1))])
+        && (collisionMapBitmap[((deer.worldRow + deer.height - 1)*(256)+(deer.worldCol - deer.cvel))])) {
 
-
-
-
-        if ((deer.worldCol > 0)) {
 
             deer.worldCol --;
 
@@ -1777,11 +1780,10 @@ void updateDeer() {
         deer.aniState = DRIGHT;
 
 
+        if ((deer.worldCol < 240)
 
+                                                                                                                  ) {
 
-
-
-        if (deer.worldCol < 240) {
 
             deer.worldCol ++;
 
